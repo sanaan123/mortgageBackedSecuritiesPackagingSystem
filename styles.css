@@ -1,0 +1,103 @@
+/* src/styles.css */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items at the top, but with space */
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f4f7; /* Mellow background color */
+    padding-top: 20px; /* Add padding to the top of the body */
+}
+
+.App {
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    padding: 10px;
+    border: 2px solid #ddd;
+    background-color: #e0e0e0; /* Header background */
+    border-radius: 4px;
+    margin-bottom: 20px; /* Add margin to space out the header */
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    padding: 10px;
+    border: 2px solid #ddd;
+    background-color: #e0e0e0; /* Header background */
+    border-radius: 4px;
+    margin-top: 20px; /* Add margin to space out the section */
+    margin-bottom: 10px;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+form > div {
+    flex: 1 1 45%;
+    margin: 10px 0;
+}
+
+label {
+    margin-right: 10px;
+}
+
+input {
+    margin-right: 10px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    align-self: center;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+li {
+    flex: 1 1 45%;
+    margin: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+div.results-summary {
+    margin-top: 20px;
+    text-align: center;
+    padding: 10px;
+    background-color: #e0e0e0; /* Results summary background */
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
