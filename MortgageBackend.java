@@ -17,32 +17,24 @@ public class MortgageBackend {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 System.out.println("\nMain Menu:");
-                System.out.println("1. Add Filter");
-                System.out.println("2. Delete Filter");
-                System.out.println("3. Calculate Rate");
-                System.out.println("4. Add New Mortgage (Extra Credit)");
-                System.out.println("5. List Available Counties");
-                System.out.println("6. Exit");
+                System.out.println("1. Search for Mortgages");
+                System.out.println("2. Calculate Rate");
+                System.out.println("3. Package Mortgages");
+                System.out.println("4. Exit");
 
                 int choice = getIntInput(scanner, "Enter your choice: ");
 
                 switch (choice) {
                     case 1:
-                        addFilter(scanner, conn);
+                        searchMortgages(scanner, conn);
                         break;
                     case 2:
-                        deleteFilter(scanner);
-                        break;
-                    case 3:
                         calculateRate(conn);
                         break;
+                    case 3:
+                        packageMortgages(conn);
+                        break;
                     case 4:
-                        addNewMortgage(conn, scanner);
-                        break;
-                    case 5:
-                        listCounties(conn);
-                        break;
-                    case 6:
                         System.out.println("Exiting...");
                         return;
                     default:
@@ -54,15 +46,48 @@ public class MortgageBackend {
         }
     }
 
+    private static void searchMortgages(Scanner scanner, Connection conn) {
+        while (true) {
+            System.out.println("\nSearch Menu:");
+            System.out.println("1. Add Filter");
+            System.out.println("2. Delete Filter");
+            System.out.println("3. View Current Filters");
+            System.out.println("4. Exit Search");
+
+            int choice = getIntInput(scanner, "Enter your choice: ");
+
+            switch (choice) {
+                case 1:
+                    addFilter(scanner, conn);
+                    break;
+                case 2:
+                    deleteFilter(scanner);
+                    break;
+                case 3:
+                    System.out.println("Current Filters: " + filters);
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
     private static void addFilter(Scanner scanner, Connection conn) {
         System.out.println("Choose a filter type:");
         System.out.println("1. County");
         System.out.println("2. Loan Type");
         System.out.println("3. Income-to-Debt Ratio");
+        System.out.println("4. MSAMD");
+        System.out.println("5. Tract to MSAMD Income ");
+        System.out.println("6. Loan Purpose");
+        System.out.println("7. Property Type");
         int filterType = getIntInput(scanner, "Enter your choice: ");
 
         switch (filterType) {
             case 1:
+                listCounties(conn);
                 System.out.print("Enter the county name: ");
                 String countyName = scanner.nextLine().trim();
                 try (PreparedStatement stmt = conn.prepareStatement(
@@ -87,16 +112,67 @@ public class MortgageBackend {
                 System.out.println("Filter added: Loan Type = " + loanType);
                 break;
             case 3:
+            //unsure if we should add more user clarification here 
+            //user enters min and max ratio and filters are added based on the value landing in between 
                 double minRatio = getDoubleInput(scanner, "Enter minimum income-to-debt ratio: ");
                 double maxRatio = getDoubleInput(scanner, "Enter maximum income-to-debt ratio: ");
                 filters.add("applicant_income_000s / loan_amount_000s BETWEEN " + minRatio + " AND " + maxRatio);
                 System.out.println("Filter added: Income-to-Debt Ratio = " + minRatio + " to " + maxRatio);
                 break;
+            case 4:
+                listMSAMD(conn); // Display the MSAMD list
+                System.out.print("Enter the MSAMD codes (comma-separated): ");
+                String input = scanner.nextLine().trim();
+                String[] msamdCodes = input.split(",");
+                //convert user input into filters 
+                
+                StringBuilder filter = new StringBuilder("msamd IN (");
+                for (int i = 0; i < msamdCodes.length; i++) {
+                    filter.append(msamdCodes[i].trim());
+                    if (i < msamdCodes.length - 1) {
+                        filter.append(", ");
+                    }
+                }
+                filter.append(")");
+
+                // Add the filter to the filters list
+                filters.add(filter.toString());
+                System.out.println("Filter added: " + filter.toString());
+                break;
+            case 5:
+                
+            
             default:
                 System.out.println("Invalid filter type.");
         }
     }
-
+    private static void listMSAMD(Connection conn){
+        System.out.println("List of MSAMDs:");
+        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT  DISTINCT msamd_name, msamd FROM preliminary;")){
+            while (rs.next()) {
+                String msamd = rs.getString("msamd");
+                String msamdName = rs.getString("msamd_name");
+                if (msamdName == null) {
+                    msamdName = "(No Name Available)";
+                }
+    
+                System.out.println(msamd + " - " + msamdName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private static void listCounties(Connection conn){
+        System.out.println("List of Counties:");
+        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT county_name FROM county_mapping;")){
+            while (rs.next()) {
+                String c = rs.getString("county_name");
+                System.out.println(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     private static void deleteFilter(Scanner scanner) {
         if (filters.isEmpty()) {
             System.out.println("No filters to delete.");
@@ -126,11 +202,11 @@ public class MortgageBackend {
             return;
         }
 
-        String baseQuery = "SELECT loan_amount_000s, rate_spread, lien_status FROM applications WHERE action_taken = 1";
-        baseQuery += " AND " + String.join(" AND ", filters);
+        String query = "SELECT loan_amount_000s, rate_spread, lien_status FROM applications WHERE action_taken = 1";
+        query += " AND " + String.join(" AND ", filters);
 
         try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(baseQuery)) {
+             ResultSet rs = stmt.executeQuery(query)) {
 
             double totalLoanAmount = 0;
             double weightedRateSum = 0;
@@ -161,39 +237,21 @@ public class MortgageBackend {
         }
     }
 
-    private static void addNewMortgage(Connection conn, Scanner scanner) {
-        try {
-            int income = getIntInput(scanner, "Enter applicant income (000s): ");
-            int loanAmount = getIntInput(scanner, "Enter loan amount (000s): ");
-            int msamd = getIntInput(scanner, "Enter MSAMD: ");
-            int sex = getIntInput(scanner, "Enter applicant sex (1=Male, 2=Female): ");
-            int loanType = getIntInput(scanner, "Enter loan type (1-4): ");
-            int ethnicity = getIntInput(scanner, "Enter applicant ethnicity (1-5): ");
-
-            String query = "INSERT INTO applications (applicant_income_000s, loan_amount_000s, msamd, applicant_sex, loan_type, applicant_ethnicity) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, income);
-            pstmt.setInt(2, loanAmount);
-            pstmt.setInt(3, msamd);
-            pstmt.setInt(4, sex);
-            pstmt.setInt(5, loanType);
-            pstmt.setInt(6, ethnicity);
-
-            int rows = pstmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("New mortgage added successfully!");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    private static void packageMortgages(Connection conn) {
+        if (filters.isEmpty()) {
+            System.out.println("No filters applied. Please add filters first.");
+            return;
         }
-    }
 
-    private static void listCounties(Connection conn) {
-        System.out.println("Available Counties:");
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT county_name, county_code FROM county_mapping")) {
-            while (rs.next()) {
-                System.out.println(rs.getString("county_name") + " (Code: " + rs.getInt("county_code") + ")");
+        String updateQuery = "UPDATE applications SET purchaser_type = 9 WHERE action_taken = 1";
+        updateQuery += " AND " + String.join(" AND ", filters);
+
+        try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+            int updatedRows = pstmt.executeUpdate();
+            if (updatedRows > 0) {
+                System.out.println(updatedRows + " mortgages successfully packaged.");
+            } else {
+                System.out.println("No mortgages matched the filters for packaging.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
