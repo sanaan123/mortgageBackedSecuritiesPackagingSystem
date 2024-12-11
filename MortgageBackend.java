@@ -16,14 +16,19 @@ public class MortgageBackend {
 
             Scanner scanner = new Scanner(System.in);
             while (true) {
+                // Display active filters and matching results
+                System.out.println("\nActive Filters: " + getReadableFilters());
+                displayMatchingRowsAndLoanAmount(conn);
+            
+                // Main menu
                 System.out.println("\nMain Menu:");
-                System.out.println("1. Search for Mortgages");
+                System.out.println("1. Search for Mortgages (Add/Delete Filters)");
                 System.out.println("2. Calculate Rate");
                 System.out.println("3. Package Mortgages");
                 System.out.println("4. Exit");
-
+            
                 int choice = getIntInput(scanner, "Enter your choice: ");
-
+            
                 switch (choice) {
                     case 1:
                         searchMortgages(scanner, conn);
@@ -41,6 +46,7 @@ public class MortgageBackend {
                         System.out.println("Invalid option. Please try again.");
                 }
             }
+            
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -78,13 +84,13 @@ public class MortgageBackend {
         System.out.println("Choose a filter type:");
         System.out.println("1. County");
         System.out.println("2. Loan Type");
-        System.out.println("3. Income-to-Debt Ratio");
+        System.out.println("3. Income to Debt Ratio");
         System.out.println("4. MSAMD");
-        System.out.println("5. Tract to MSAMD Income ");
+        System.out.println("5. Tract to MSAMD Income");
         System.out.println("6. Loan Purpose");
         System.out.println("7. Property Type");
         int filterType = getIntInput(scanner, "Enter your choice: ");
-
+    
         switch (filterType) {
             case 1:
                 listCounties(conn);
@@ -112,20 +118,27 @@ public class MortgageBackend {
                 System.out.println("Filter added: Loan Type = " + loanType);
                 break;
             case 3:
-            //unsure if we should add more user clarification here 
-            //user enters min and max ratio and filters are added based on the value landing in between 
-                double minRatio = getDoubleInput(scanner, "Enter minimum income-to-debt ratio: ");
-                double maxRatio = getDoubleInput(scanner, "Enter maximum income-to-debt ratio: ");
-                filters.add("applicant_income_000s / loan_amount_000s BETWEEN " + minRatio + " AND " + maxRatio);
-                System.out.println("Filter added: Income-to-Debt Ratio = " + minRatio + " to " + maxRatio);
+                // User enters min and max ratio, filters are added based on the values provided
+                System.out.print("Enter minimum income-to-debt ratio (or press Enter to skip): ");
+                String minRatioInput = scanner.nextLine().trim();
+                System.out.print("Enter maximum income-to-debt ratio (or press Enter to skip): ");
+                String maxRatioInput = scanner.nextLine().trim();
+                if (minRatioInput.isEmpty()) {
+                    filters.add("applicant_income_000s / loan_amount_000s <= " + maxRatioInput);
+                    System.out.println("Filter added: Income-to-Debt Ratio <= " + maxRatioInput);
+                } else if (maxRatioInput.isEmpty()) {
+                    filters.add("applicant_income_000s / loan_amount_000s >= " + minRatioInput);
+                    System.out.println("Filter added: Income-to-Debt Ratio >= " + minRatioInput);
+                } else {
+                    filters.add("applicant_income_000s / loan_amount_000s BETWEEN " + minRatioInput + " AND " + maxRatioInput);
+                    System.out.println("Filter added: Income-to-Debt Ratio = " + minRatioInput + " to " + maxRatioInput);
+                }
                 break;
             case 4:
-                listMSAMD(conn); // Display the MSAMD list
+                listMSAMD(conn);
                 System.out.print("Enter the MSAMD codes (comma-separated): ");
                 String input = scanner.nextLine().trim();
                 String[] msamdCodes = input.split(",");
-                //convert user input into filters 
-                
                 StringBuilder filter = new StringBuilder("msamd IN (");
                 for (int i = 0; i < msamdCodes.length; i++) {
                     filter.append(msamdCodes[i].trim());
@@ -134,25 +147,82 @@ public class MortgageBackend {
                     }
                 }
                 filter.append(")");
-
-                // Add the filter to the filters list
                 filters.add(filter.toString());
                 System.out.println("Filter added: " + filter.toString());
                 break;
             case 5:
-                
+                // Handle tract_to_msamd_income directly from the preliminary table
+                System.out.print("Enter minimum tract-to-msamd income (or press Enter to skip): ");
+                String minTractIncomeInput = scanner.nextLine().trim();
+                System.out.print("Enter maximum tract-to-msamd income (or press Enter to skip): ");
+                String maxTractIncomeInput = scanner.nextLine().trim();
             
+                StringBuilder preliminaryFilter = new StringBuilder();
+                if (!minTractIncomeInput.isEmpty() && !maxTractIncomeInput.isEmpty()) {
+                    preliminaryFilter.append("tract_to_msamd_income BETWEEN ").append(minTractIncomeInput).append(" AND ").append(maxTractIncomeInput);
+                    System.out.println("Filter added: Tract-to-MSAMD Income = " + minTractIncomeInput + " to " + maxTractIncomeInput);
+                } else if (!minTractIncomeInput.isEmpty()) {
+                    preliminaryFilter.append("tract_to_msamd_income >= ").append(minTractIncomeInput);
+                    System.out.println("Filter added: Tract-to-MSAMD Income >= " + minTractIncomeInput);
+                } else if (!maxTractIncomeInput.isEmpty()) {
+                    preliminaryFilter.append("tract_to_msamd_income <= ").append(maxTractIncomeInput);
+                    System.out.println("Filter added: Tract-to-MSAMD Income <= " + maxTractIncomeInput);
+                }
+            
+                if (preliminaryFilter.length() > 0) {
+                    filters.add(preliminaryFilter.toString());
+                }
+                break;
+            case 6:
+                System.out.println("Enter loan purpose types (comma-separated): ");
+                String loanPurposeInput = scanner.nextLine().trim();
+                String[] loanPurposeTypes = loanPurposeInput.split(",");
+                StringBuilder loanPurposeFilter = new StringBuilder("loan_purpose IN (");
+                for (int i = 0; i < loanPurposeTypes.length; i++) {
+                    loanPurposeFilter.append(loanPurposeTypes[i].trim());
+                    if (i < loanPurposeTypes.length - 1) {
+                        loanPurposeFilter.append(", ");
+                    }
+                }
+                loanPurposeFilter.append(")");
+                filters.add(loanPurposeFilter.toString());
+                System.out.println("Filter added: " + loanPurposeFilter.toString());
+                break;
+            case 7:
+                System.out.println("Enter property types (comma-separated): ");
+                String propertyTypeInput = scanner.nextLine().trim();
+                String[] propertyTypes = propertyTypeInput.split(",");
+                StringBuilder propertyTypeFilter = new StringBuilder("property_type IN (");
+                for (int i = 0; i < propertyTypes.length; i++) {
+                    propertyTypeFilter.append(propertyTypes[i].trim());
+                    if (i < propertyTypes.length - 1) {
+                        propertyTypeFilter.append(", ");
+                    }
+                }
+                propertyTypeFilter.append(")");
+                filters.add(propertyTypeFilter.toString());
+                System.out.println("Filter added: " + propertyTypeFilter.toString());
+                break;
             default:
                 System.out.println("Invalid filter type.");
         }
     }
-    private static void listMSAMD(Connection conn){
+    
+    private static void listMSAMD(Connection conn) {
         System.out.println("List of MSAMDs:");
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT  DISTINCT msamd_name, msamd FROM preliminary;")){
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT DISTINCT msamd_name, msamd FROM preliminary;")) {
             while (rs.next()) {
-                String msamd = rs.getString("msamd");
                 String msamdName = rs.getString("msamd_name");
-                if (msamdName == null) {
+                Integer msamd = rs.getInt("msamd");
+    
+                // Check for null MSAMD and skip if null
+                if (rs.wasNull()) {
+                    continue;
+                }
+    
+                // Handle null or empty msamd_name
+                if ( msamdName.trim().isEmpty()) {
                     msamdName = "(No Name Available)";
                 }
     
@@ -201,8 +271,10 @@ public class MortgageBackend {
             System.out.println("No filters applied. Please add filters first.");
             return;
         }
-
-        String query = "SELECT loan_amount_000s, rate_spread, lien_status FROM applications WHERE action_taken = 1";
+        String query = "SELECT a.loan_amount_000s, a.rate_spread, a.lien_status " +
+        "FROM applications a " +
+        "JOIN preliminary p ON a.msamd = p.msamd " + // Adjust the JOIN condition based on your schema
+        "WHERE a.action_taken = 1 AND a.purchaser_type IN (0, 1, 2, 3, 4, 8)";
         query += " AND " + String.join(" AND ", filters);
 
         try (Statement stmt = conn.createStatement();
@@ -243,7 +315,7 @@ public class MortgageBackend {
             return;
         }
 
-        String updateQuery = "UPDATE applications SET purchaser_type = 9 WHERE action_taken = 1";
+        String updateQuery = "UPDATE applications SET purchaser_type = 9 WHERE action_taken = 1 AND purchaser_type IN (0, 1, 2, 3, 4, 8)";
         updateQuery += " AND " + String.join(" AND ", filters);
 
         try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
@@ -279,4 +351,59 @@ public class MortgageBackend {
             }
         }
     }
+
+    private static String getReadableFilters() {
+        if (filters.isEmpty()) {
+            return "No active filters.";
+        }
+
+        StringBuilder readableFilters = new StringBuilder();
+        for (int i = 0; i < filters.size(); i++) {
+            if (i > 0) {
+                readableFilters.append(" AND ");
+            }
+            readableFilters.append(filters.get(i));
+        }
+        return readableFilters.toString();
+    }
+    private static void displayMatchingRowsAndLoanAmount(Connection conn) {
+        if (filters.isEmpty()) {
+            System.out.println("Matching Rows: 0");
+            System.out.println("Total Loan Amount: 0");
+            return;
+        }
+    
+        boolean hasPreliminaryFilter = filters.stream().anyMatch(filter -> filter.contains("tract_to_msamd_income"));
+        String baseQuery;
+    
+        if (hasPreliminaryFilter) {
+            // Query directly from preliminary table
+            baseQuery = "SELECT COUNT(*) AS row_count, SUM(loan_amount_000s) AS total_loan_amount " +
+                        "FROM preliminary WHERE " + String.join(" AND ", filters);
+        } else {
+            // Query from applications table
+            baseQuery = "SELECT COUNT(*) AS row_count, SUM(loan_amount_000s) AS total_loan_amount " +
+                        "FROM applications WHERE action_taken = 1 AND purchaser_type IN (0, 1, 2, 3, 4, 8)";
+            baseQuery += " AND " + String.join(" AND ", filters);
+        }
+    
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(baseQuery)) {
+    
+            if (rs.next()) {
+                int rowCount = rs.getInt("row_count");
+                double totalLoanAmount = rs.getDouble("total_loan_amount");
+    
+                System.out.println("Matching Rows: " + rowCount);
+                System.out.println("Total Loan Amount: $" + (totalLoanAmount * 1000));
+            } else {
+                System.out.println("Matching Rows: 0");
+                System.out.println("Total Loan Amount: 0");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
 }
