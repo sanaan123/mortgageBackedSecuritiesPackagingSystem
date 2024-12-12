@@ -345,7 +345,7 @@ public class MortgageBackend {
         String applicationsQuery = "SELECT loan_amount_000s, rate_spread, lien_status "
                 + "FROM applications "
                 + (applicationsFilters.isEmpty() ? "" : "WHERE action_taken = 1 AND purchaser_type IN (0, 1, 2, 3, 4, 8) AND " + String.join(" AND ", applicationsFilters));
-    
+
         List<Map<String, Object>> applicationsResults = new ArrayList<>();
         if (!applicationsFilters.isEmpty()) {
             try (Statement stmt = conn.createStatement();
@@ -362,9 +362,8 @@ public class MortgageBackend {
     
         // Query preliminary table
         String preliminaryQuery = "SELECT loan_amount_000s, rate_spread, lien_status "
-                + "FROM preliminary "
-                + (preliminaryFilters.isEmpty() ? "" : "WHERE " + String.join(" AND ", preliminaryFilters));
-    
+                + (preliminaryFilters.isEmpty() ? "FROM preliminary" : "FROM preliminary WHERE " + String.join(" AND ", preliminaryFilters));
+
         List<Map<String, Object>> preliminaryResults = new ArrayList<>();
         if (!preliminaryFilters.isEmpty()) {
             try (Statement stmt = conn.createStatement();
@@ -546,24 +545,22 @@ public class MortgageBackend {
     }
     
     private static void displayMatchingRowsAndLoanAmount(Connection conn) {
-        if (filters.isEmpty()) {
-            System.out.println("Matching Rows: 0");
-            System.out.println("Total Loan Amount: 0");
-            return;
-        }
-    
-        boolean hasPreliminaryFilter = filters.stream().anyMatch(filter -> filter.contains("tract_to_msamd_income"));
         String baseQuery;
-    
-        if (hasPreliminaryFilter) {
-            // Query directly from preliminary table
-            baseQuery = "SELECT COUNT(*) AS row_count, SUM(loan_amount_000s) AS total_loan_amount " +
-                        "FROM preliminary WHERE " + String.join(" AND ", filters);
-        } else {
-            // Query from applications table
+        if (filters.isEmpty()) {
+            // If no filters are active, include all rows by default
             baseQuery = "SELECT COUNT(*) AS row_count, SUM(loan_amount_000s) AS total_loan_amount " +
                         "FROM applications WHERE action_taken = 1 AND purchaser_type IN (0, 1, 2, 3, 4, 8)";
-            baseQuery += " AND " + String.join(" AND ", filters);
+        } else {
+            // If filters are active, use them in the query
+            boolean hasPreliminaryFilter = filters.stream().anyMatch(filter -> filter.contains("tract_to_msamd_income"));
+            if (hasPreliminaryFilter) {
+                baseQuery = "SELECT COUNT(*) AS row_count, SUM(loan_amount_000s) AS total_loan_amount " +
+                            "FROM preliminary WHERE " + String.join(" AND ", filters);
+            } else {
+                baseQuery = "SELECT COUNT(*) AS row_count, SUM(loan_amount_000s) AS total_loan_amount " +
+                            "FROM applications WHERE action_taken = 1 AND purchaser_type IN (0, 1, 2, 3, 4, 8) AND " +
+                            String.join(" AND ", filters);
+            }
         }
     
         try (Statement stmt = conn.createStatement();
@@ -574,7 +571,7 @@ public class MortgageBackend {
                 double totalLoanAmount = rs.getDouble("total_loan_amount");
     
                 System.out.println("Matching Rows: " + rowCount);
-                System.out.println("Total Loan Amount: $" + (totalLoanAmount * 1000));
+                System.out.println("Total Loan Amount: $" + (totalLoanAmount * 1000)); // Assuming the value is in thousands
             } else {
                 System.out.println("Matching Rows: 0");
                 System.out.println("Total Loan Amount: 0");
@@ -583,6 +580,7 @@ public class MortgageBackend {
             e.printStackTrace();
         }
     }
+    
     
     private static void listLoanTypes(Connection conn) {
         System.out.println("List of Loan Types:");
@@ -668,3 +666,4 @@ public class MortgageBackend {
     
     
 }
+
