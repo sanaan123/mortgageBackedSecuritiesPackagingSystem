@@ -26,5 +26,6 @@ Challenges Faced
    Handling Missing Data: Ensuring correct assumptions for missing rate spreads required integrating additional logic based on lien status.
    Complex Query Filtering: Dynamic query building for combining multiple filters while maintaining efficiency.
    Time Management: Balancing debugging with meeting assignment requirements, particularly for the extra credit sections.
+  Learning how to talk to copilot in a helpful way to teach me about programming with a language I was not comfortable with, since react and javascript in all is new to us for the most part. Specifically, I faced challenges in getting all the data I wanted from the backend database through springboot and react, the syntax was challenging to work with.
 Time Spent was approximately 30 hours.
 
