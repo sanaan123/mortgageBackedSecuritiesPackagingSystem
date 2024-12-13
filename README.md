@@ -18,7 +18,7 @@ Implemented a command line interface with a main menu offering the following opt
    Included functionality for all seven filters (extra credit).
    Ensured database operations followed serializable transactions (extra credit).
 
-Part 3 we partially completed as not all the filters for add filters function, nor does add a mortgage function correctly.
+Part 3 we partially completed as not all the filters for add filters function, nor does add a mortgage function correctly. However, the searching for 5 filters works as well as calculate rate and the option to accept or decline the package.
 
 4.
 Challenges Faced
