@@ -5,6 +5,6 @@
 
 2. We collaborated with each other as well as online resources such as Microsoft copilot for the frontend. We consulted with Microsoft copilot ai to help build the frontend. Most of the frontend was done with the help of Microsoft copilot, to help construct the Rest API controllers that allow the frontend to communicate with the database, to help construct the site visually, as well as styling it. 
 
-3. We completed part 1 and its extra credit allowing filtering by all 7 in the command line. We also completed part 2 within the command line. Part 3 we partially completed as not all the filters for add filters function, nor does add a mortgage function correctly.
+3. We completed part 1 and its extra credit allowing filtering by all 7 in the command line. We also completed part 2 within the command line. Part 3 was partially completed as not all the filters for add filters function, nor does add a mortgage function correctly. Besides that, the frontend does function like the command line in terms of searching based on 5 filters, calculates rate, and the option to accept or decline the package. 
 
 4.
