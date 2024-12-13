@@ -26,5 +26,5 @@ Challenges Faced
    Handling Missing Data: Ensuring correct assumptions for missing rate spreads required integrating additional logic based on lien status.
    Complex Query Filtering: Dynamic query building for combining multiple filters while maintaining efficiency.
    Time Management: Balancing debugging with meeting assignment requirements, particularly for the extra credit sections.
-Time Spent
-   Total: Approximately 30 hours.
+Time Spent was approximately 30 hours.
+
