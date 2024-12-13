@@ -1,1 +1,10 @@
-# mortgageBackedSecurities
+0. Sanaan Akhter(sa1420)
+   Dayyan Hamid()
+
+1. For the frontend, there are noticeably known issues within the user interface of the website as well as some backend spring boot issues. To start with, the add filter option for "owner occupied", "min income-to-debt ratio", "max income-to-debt ration", and "tract_to_msamd_income" min and max don't function properly on the website. Owner occupied is the only that shows the values associated with our database in the filters mentioned. Users are not able to get accurate search results, let alone any search results, when filling out any of the filters mentioned. An error is mentioned in the backlogs of the spring boot saying invalid input syntax and column not found for the mentioned filter attributes. Add Mortgage is also not working unfortunately, and although no errors pop up in the console, the data that the user enters for each option in add mortgage doesn't correctly associate with the values those attributes consist of within the database, like msamd or applicant sex and ethnicity. Users can input any number freely which clearly presents issues, it should have been a dropdown list of options that correlate with the database. Other than that, for add filter, the filter choices for the dropdown input lists aren't changing to what the user selects even though the backend is retrieving the users choice then finding the results based on the filters chosen. Also, the frontend won't allow for multiple selections of the same filter when adding filters, so can't add multiple msamds. Search  
+
+2. We collaborated with each other as well as online resources such as Microsoft copilot for the frontend. We consulted with Microsoft copilot ai to help build the frontend. Most of the frontend was done with the help of Microsoft copilot, to help construct the Rest API controllers that allow the frontend to communicate with the database, to help construct the site visually, as well as styling it. 
+
+3. We completed part 1 and its extra credit allowing filtering by all 7 in the command line. We also completed part 2 within the command line. Part 3 we partially completed as not all the filters for add filters function, nor does add a mortgage function correctly.
+
+4.
