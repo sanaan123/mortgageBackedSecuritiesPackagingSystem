@@ -1,51 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import React, { useState } from "react";
+import axios from "../api";
 
-function CalculateRate({ selectedMortgages }) {
-    const [rate, setRate] = useState(null);
-    const [totalCost, setTotalCost] = useState(null);
+function CalculateRate({ filters, setRate }) {
+    const [result, setResult] = useState(null);
 
-    useEffect(() => {
-        const handleCalculate = () => {
-            api.post('/api/mortgages/calculateRate', { mortgages: selectedMortgages })
-                .then(response => {
-                    setRate(response.data.rate);
-                    setTotalCost(response.data.totalCost);
-                })
-                .catch(error => console.error('Error:', error));
-        };
-
-        if (selectedMortgages.length > 0) {
-            handleCalculate();
-        }
-    }, [selectedMortgages]);
+    const calculateRate = () => {
+        axios.post("/api/calculateRate", filters).then((response) => {
+            setResult(response.data);
+            setRate(response.data.rate);
+        });
+    };
 
     return (
         <div>
             <h2>Calculate Rate</h2>
-            {selectedMortgages.length === 0 ? (
-                <div>Please select mortgages from the search results.</div>
-            ) : (
-                <button onClick={() => {
-                    const handleCalculate = () => {
-                        api.post('/api/mortgages/calculateRate', { mortgages: selectedMortgages })
-                            .then(response => {
-                                setRate(response.data.rate);
-                                setTotalCost(response.data.totalCost);
-                            })
-                            .catch(error => console.error('Error:', error));
-                    };
-                    handleCalculate();
-                }}>Calculate Rate</button>
-            )}
-            {rate !== null && totalCost !== null && (
+            <button onClick={calculateRate}>Calculate Rate</button>
+            {result && (
                 <div>
-                    <div>Calculated Rate: {rate}%</div>
-                    <div>Total Cost: ${totalCost}</div>
+                    <p>Weighted Rate: {result.weightedRate}</p>
+                    <p>Total Loan Amount: ${result.totalLoanAmount}</p>
                 </div>
             )}
         </div>
     );
 }
-
 export default CalculateRate;
