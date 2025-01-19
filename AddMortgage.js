@@ -1,86 +1,134 @@
-// src/components/AddMortgage.js
-import React, { useState } from 'react';
-import api from '../services/api';
+import React, { useState } from "react";
+import axios from "../api";
 
 function AddMortgage() {
     const [mortgage, setMortgage] = useState({
-        income: '',
-        loanAmount: '',
+        applicant_income_000s: '',
+        loan_amount_000s: '',
         msamd: '',
-        sex: '',
-        loanType: '',
-        ethnicity: ''
+        applicant_sex: '',
+        loan_type: '',
+        applicant_ethnicity: '',
+        locationId: ''
     });
 
-    const handleAdd = () => {
-        api.post('/api/mortgages/add', mortgage)
-            .then(response => console.log('Mortgage added:', response.data))
-            .catch(error => console.error('Error:', error));
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setMortgage(prevMortgage => ({ ...prevMortgage, [name]: value }));
     };
 
-    const handleChange = (e) => {
-        setMortgage({ ...mortgage, [e.target.name]: e.target.value });
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        // Ensure fields are not empty and have valid numbers
+        const { applicant_income_000s, loan_amount_000s, msamd, applicant_sex, loan_type, applicant_ethnicity, locationId } = mortgage;
+        if (applicant_income_000s && loan_amount_000s && msamd && applicant_sex && loan_type && applicant_ethnicity && locationId) {
+            const mortgageData = {
+                applicant_income_000s: parseInt(applicant_income_000s),
+                loan_amount_000s: parseInt(loan_amount_000s),
+                msamd: parseInt(msamd),
+                applicant_sex: parseInt(applicant_sex),
+                loan_type: parseInt(loan_type),
+                applicant_ethnicity: parseInt(applicant_ethnicity),
+                locationId: parseInt(locationId)
+            };
+            axios.post("/api/mortgages", mortgageData)
+                .then(response => {
+                    alert("Mortgage added successfully!");
+                    setMortgage({
+                        applicant_income_000s: '',
+                        loan_amount_000s: '',
+                        msamd: '',
+                        applicant_sex: '',
+                        loan_type: '',
+                        applicant_ethnicity: '',
+                        locationId: ''
+                    });
+                })
+                .catch(error => {
+                    console.error("There was an error adding the mortgage!", error);
+                });
+        } else {
+            alert("Please fill in all fields with valid data.");
+        }
     };
 
     return (
         <div>
             <h2>Add Mortgage</h2>
-            <form>
+            <form onSubmit={handleSubmit} className="add-mortgage-form">
                 <div>
-                    <label>Income:</label>
+                    <label>Applicant Income (000s)</label>
                     <input
                         type="number"
-                        name="income"
-                        value={mortgage.income}
+                        name="applicant_income_000s"
+                        value={mortgage.applicant_income_000s}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div>
-                    <label>Loan Amount:</label>
+                    <label>Loan Amount (000s)</label>
                     <input
                         type="number"
-                        name="loanAmount"
-                        value={mortgage.loanAmount}
+                        name="loan_amount_000s"
+                        value={mortgage.loan_amount_000s}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div>
-                    <label>MSAMD:</label>
+                    <label>MSAMD</label>
                     <input
-                        type="text"
+                        type="number"
                         name="msamd"
                         value={mortgage.msamd}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div>
-                    <label>Sex:</label>
+                    <label>Applicant Sex</label>
                     <input
-                        type="text"
-                        name="sex"
-                        value={mortgage.sex}
+                        type="number"
+                        name="applicant_sex"
+                        value={mortgage.applicant_sex}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div>
-                    <label>Loan Type:</label>
+                    <label>Loan Type</label>
                     <input
-                        type="text"
-                        name="loanType"
-                        value={mortgage.loanType}
+                        type="number"
+                        name="loan_type"
+                        value={mortgage.loan_type}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div>
-                    <label>Ethnicity:</label>
+                    <label>Applicant Ethnicity</label>
                     <input
-                        type="text"
-                        name="ethnicity"
-                        value={mortgage.ethnicity}
+                        type="number"
+                        name="applicant_ethnicity"
+                        value={mortgage.applicant_ethnicity}
                         onChange={handleChange}
+                        required
                     />
                 </div>
-                <button type="button" onClick={handleAdd}>Add Mortgage</button>
+                <div>
+                    <label>Location ID</label>
+                    <input
+                        type="number"
+                        name="locationId"
+                        value={mortgage.locationId}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="center-button">
+                    <button type="submit">Add Mortgage</button>
+                </div>
             </form>
         </div>
     );
