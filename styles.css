@@ -1,103 +1,160 @@
-/* src/styles.css */
+/* General styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align items at the top, but with space */
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f4f7; /* Mellow background color */
-    padding-top: 20px; /* Add padding to the top of the body */
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
-.App {
-    width: 80%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+/* Typography */
+h1, h2 {
+    color: #2f4f4f;
+    margin: 20px 0;
+    text-align: center;
 }
 
 h1 {
-    text-align: center;
-    color: #333;
-    padding: 10px;
-    border: 2px solid #ddd;
-    background-color: #e0e0e0; /* Header background */
-    border-radius: 4px;
-    margin-bottom: 20px; /* Add margin to space out the header */
+    font-size: 2.5em;
 }
 
 h2 {
-    text-align: center;
-    color: #333;
-    padding: 10px;
-    border: 2px solid #ddd;
-    background-color: #e0e0e0; /* Header background */
-    border-radius: 4px;
-    margin-top: 20px; /* Add margin to space out the section */
+    font-size: 1.8em;
     margin-bottom: 10px;
 }
 
-form {
+/* Container for the entire app */
+.app-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px; /* Add space between each element */
+}
+
+/* Form and buttons */
+form, .filter-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
     margin-bottom: 20px;
+    align-items: center;
 }
 
-form > div {
-    flex: 1 1 45%;
-    margin: 10px 0;
-}
-
-label {
-    margin-right: 10px;
-}
-
-input {
-    margin-right: 10px;
+select, button, input {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
 button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #228b22;
     color: white;
-    border: none;
     cursor: pointer;
-    align-self: center;
-    border-radius: 4px;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #006400;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+/* Search results */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+th, td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #e9ecef;
+}
+
+/* Grid layout for filter options */
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    width: 100%;
+}
+
+@media (min-width: 600px) {
+    .filter-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* Add some space between sections */
+.section {
+    margin-bottom: 50px;
+}
+
+/* Header styles */
+.header {
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
-}
-
-li {
-    flex: 1 1 45%;
-    margin: 5px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-div.results-summary {
-    margin-top: 20px;
-    text-align: center;
-    padding: 10px;
-    background-color: #e0e0e0; /* Results summary background */
-    border: 2px solid #ddd;
-    border-radius: 4px;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 30px;
+    background-color: #228b22;
+    color: white;
     margin-bottom: 20px;
+    border-radius: 10px;
 }
+
+/* Filter labels */
+label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2f4f4f;
+    display: block;
+    text-align: left;
+    width: 100%;
+}
+
+/* Button styles */
+button {
+    background-color: #d2691e;
+    color: white;
+    padding: 15px 20px;
+    border: none;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: fit-content;
+}
+
+button:hover {
+    background-color: #b22222;
+}
+.center-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px; /* Adjust as needed */
+}
+
+
+
